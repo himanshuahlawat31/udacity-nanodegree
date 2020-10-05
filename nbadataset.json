@@ -1,0 +1,140 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "uniqueSuffix": {
+            "type": "String",
+            "metadata": {
+                "description": "Specifies the name of the Azure Machine Learning workspace which will hold this datastore target."
+            }
+        },
+        "httpUrl": {
+            "type": "String",
+            "defaultValue": "https://udacitystorage.blob.core.windows.net/nba-dataset/nba-2017-players-with-salary-wiki-twitter (4).csv",
+            "metadata": {
+                "description": "The Http URL."
+            }
+        },
+        "datasetName": {
+            "type": "String",
+            "defaultValue": "Nba-Dataset",
+            "metadata": {
+                "description": "The name of the dataset."
+            }
+        },
+        "datasetDescription": {
+            "defaultValue": "",
+            "type": "String",
+            "metadata": {
+                "description": "Optional : The description for the dataset."
+            }
+        },
+        "sourceType": {
+            "defaultValue": "delimited_files",
+            "allowedValues": [
+                "delimited_files",
+                "json_lines_files",
+                "parquet_files"
+            ],
+            "type": "String",
+            "metadata": {
+                "description": "Data source type"
+            }
+        },
+        "separator": {
+            "defaultValue": "",
+            "type": "String",
+            "metadata": {
+                "description": "Optional: The separator used to split columns for 'delimited_files' sourceType, default to ',' for 'delimited_files'"
+            }
+        },
+        "header": {
+            "defaultValue": "all_files_have_same_headers",
+            "allowedValues": [
+                "all_files_have_same_headers",
+                "only_first_file_has_headers",
+                "no_headers",
+                "combine_all_files_headers"
+            ],
+            "type": "String",
+            "metadata": {
+                "description": "Optional :  Header type. Defaults to 'all_files_have_same_headers'"
+            }
+        },
+        "fineGrainTimestamp": {
+            "defaultValue": "",
+            "type": "String",
+            "metadata": {
+                "description": "Optional : Column name to be used as FineGrainTimestamp"
+            }
+        },
+        "coarseGrainTimestamp": {
+            "defaultValue": "",
+            "type": "String",
+            "metadata": {
+                "description": "Optional : Column name to be used as CoarseGrainTimestamp. Can only be used if 'fineGrainTimestamp' is specified and cannot be same as 'fineGrainTimestamp'."
+            }
+        },
+        "tags": {
+            "defaultValue": {},
+            "type": "Object",
+            "metadata": {
+                "description": "Optional : Provide JSON object with 'key,value' pairs to add as tags on dataset. Example- {\"sampleTag1\": \"tagValue1\", \"sampleTag2\": \"tagValue2\"}"
+            }
+        },
+        "skipValidation": {
+            "defaultValue": false,
+            "type": "Bool",
+            "metadata": {
+                "description": "Optional :  Skip validation that ensures data can be loaded from the dataset before registration."
+            }
+        },
+        "includePath": {
+            "defaultValue": false,
+            "type": "Bool",
+            "metadata": {
+                "description": "Optional :  Boolean to keep path information as column in the dataset. Defaults to False. This is useful when reading multiple files, and want to know which file a particular record originated from, or to keep useful information in file path."
+            }
+        },
+        "location": {
+            "defaultValue": "[resourceGroup().location]",
+            "type": "String",
+            "metadata": {
+                "description": "The location of the Azure Machine Learning Workspace."
+            }
+        }
+    },
+    "variables": {
+    "workspacename": "[concat('quick-starts-ws-',parameters('uniqueSuffix')) ]",
+    "computeinstancename": "[concat('notebook',parameters('uniqueSuffix'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.MachineLearningServices/workspaces/datasets",
+            "apiVersion": "2020-05-01-preview",
+            "name": "[concat(variables('workspaceName'), '/', parameters('datasetName'))]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "SkipValidation": "[parameters('skipValidation')]",
+                "DatasetType": "tabular",
+                "Parameters": {
+                    "Header": "[parameters('header')]",
+                    "IncludePath": "[parameters('includePath')]",
+                    "Path": {
+                        "HttpUrl": "[parameters('httpUrl')]"
+                    },
+                    "Separator": "[parameters('separator')]",
+                    "SourceType": "[parameters('sourceType')]"
+                },
+                "Registration": {
+                    "Description": "[parameters('datasetDescription')]",
+                    "Tags": "[parameters('tags')]"
+                },
+                "TimeSeries": {
+                    "FineGrainTimestamp": "[parameters('fineGrainTimestamp')]",
+                    "CoarseGrainTimestamp": "[parameters('coarseGrainTimestamp')]"
+                }
+            }
+        }
+    ]
+}
