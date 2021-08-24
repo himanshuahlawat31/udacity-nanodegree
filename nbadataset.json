@@ -10,7 +10,7 @@
         },
         "httpUrl": {
             "type": "String",
-            "defaultValue": "https://udacitystorage.blob.core.windows.net/nba-dataset/nba-2017-players-with-salary-wiki-twitter (4).csv",
+            "defaultValue": "https://experienceazure.blob.core.windows.net/templates/udacity-nanodegree/nba-2017-players-with-salary-wiki-twitter.csv",
             "metadata": {
                 "description": "The Http URL."
             }
